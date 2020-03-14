@@ -1,0 +1,66 @@
+model:
+    algo: PartialCompletionContentCGAN
+    total_iter: 450000
+    lr_steps: []
+    lr_mults: []
+    lr: 0.0001
+    warmup_lr: []
+    warmup_steps: []
+    backbone_arch: PConvUNet
+    backbone_param:
+        input_channels: 4
+    discriminator: InpaintDiscriminator
+    discriminator_params:
+        in_channels: 4
+        use_sigmoid: True
+    d2g_lr: 0.1
+    gan_type: 'nsgan'
+    adv_loss_weight: 0.1
+    with_modal: True
+    lambda_dict: {'valid': 1.0, 'hole': 6.0, 'tv': 0.1, 'prc': 0.1, 'style': 250.0}
+
+data:
+    dataset: "SAS"
+    memcached: True
+    memcached_client: "/mnt/lustre/share/memcached_client"
+    trainval_dataset: 'PartialCompContentDataset'
+    eval_dataset: null
+    extract_dataset: null
+    train_image_root: "data/SAS/train2014"
+    train_annot_file: "data/SAS/annotations/COCO_amodal_train2014.json"
+    val_image_root: "data/SAS/val2014"
+    val_annot_file: "data/SAS/annotations/COCO_amodal_val2014.json"
+
+    data_mean: [0.485, 0.456, 0.406]
+    data_std: [0.229, 0.224, 0.225]
+    input_size: 256
+    enlarge_box: 3.
+    eraser_setter:
+        min_overlap: 0.4
+        max_overlap: 1.0
+        min_cut_ratio: 0.001
+        max_cut_ratio: 0.9
+    base_aug:
+        flip: True
+        shift: [-0.2, 0.2]
+        scale: [0.8, 1.2]
+    dilate: 0
+    load_rgb: True
+    batch_size: 16
+    batch_size_val: 32
+    eval_num: -1
+    workers: 1
+
+trainer:
+    eval: False
+    initial_eval: False
+    eval_freq: 2000
+    initial_val: True
+    val_freq: 500
+    print_freq: 100
+    save_freq: 10000
+    val_iter: 10
+    val_disp_start_iter: 0
+    val_disp_end_iter: 1
+    loss_record: ['hole', 'valid', 'prc', 'style', 'tv', 'dis', 'adv']
+    tensorboard: True

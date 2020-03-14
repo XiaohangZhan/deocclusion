@@ -1,0 +1,69 @@
+model:
+    algo: PartialCompletion
+    total_iter: 56000
+    lr_steps: [32000, 48000]
+    lr_mults: [0.1, 0.1]
+    lr: 0.001
+    weight_decay: 0.0001
+    optim: SGD
+    warmup_lr: []
+    warmup_steps: []
+    use_rgb: False
+    backbone_arch: unet2
+    backbone_param:
+        in_channels: 2
+        n_classes: 2
+    inmask_weight: 5.
+    order_method: "hull"
+    amodal_method: 'hull'
+    above: 'smaller'
+    inference:
+        positive_th_order: 0.1
+        positive_th_amodal: 0.2
+        order_interp: 'nearest'
+        amodal_interp: 'linear'
+        order_grounded: True
+data:
+    dataset: "SAS"
+    memcached_client: "/mnt/lustre/share/memcached_client"
+    trainval_dataset: 'PartialCompDataset'
+    eval_dataset: 'PartialCompEvalDataset'
+    extract_dataset: null
+    train_image_root: "data/SAS/train2014"
+    train_annot_file: "data/SAS/annotations/COCO_amodal_train2014.json"
+    val_image_root: "data/SAS/val2014"
+    val_annot_file: "data/SAS/annotations/COCO_amodal_val2014.json"
+
+    has_gt_ordering: False
+    input_size: 256
+    enlarge_box: 3.
+    eraser_front_prob: 0.8
+    eraser_setter:
+        min_overlap: 0.4
+        max_overlap: 1.0
+        min_cut_ratio: 0.001
+        max_cut_ratio: 0.9
+    base_aug:
+        flip: True
+        shift: [-0.2, 0.2]
+        scale: [0.8, 1.2]
+    dilate: 0
+    load_rgb: False
+    batch_size: 32
+    batch_size_val: 32
+    eval_num: -1
+    workers: 1
+
+trainer:
+    eval: True
+    initial_eval: True
+    eval_freq: 2000
+    initial_val: True
+    val_freq: 2000
+    print_freq: 100
+    save_freq: 2000
+    val_iter: 10
+    val_disp_start_iter: 0
+    val_disp_end_iter: 1
+    loss_record: ['loss']
+    tensorboard: True

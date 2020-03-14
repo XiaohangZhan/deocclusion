@@ -1,0 +1,6 @@
+opencv-python>=2.4.9
+pyyaml
+imutils
+cvbase
+torchvision
+tensorboardX
