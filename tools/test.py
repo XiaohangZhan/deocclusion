@@ -18,8 +18,9 @@ from tqdm import tqdm
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', required=True, type=str)
-    parser.add_argument('--load-iter', required=True, type=int)
-    parser.add_argument('--method', required=True, type=str)
+    parser.add_argument('--load-model', required=True, type=int)
+    parser.add_argument('--order-method', required=True, type=str)
+    parser.add_argument('--amodal-method', required=True, type=str)
     parser.add_argument('--modal-res', required=True, type=str)
     parser.add_argument('--image-root', required=True, type=str)
     parser.add_argument('--gt-annot', required=True, type=str)
@@ -63,7 +64,7 @@ class Tester(object):
 
     def prepare_model(self):
         self.model = models.__dict__[self.args.model['algo']](self.args.model, dist_model=False)
-        self.model.load_state("{}/checkpoints".format(self.args.exp_path), self.args.load_iter)
+        self.model.load_state(self.args.load_model)
         self.model.switch_to('eval')
 
     def expand_bbox(self, bboxes):
@@ -99,36 +100,51 @@ class Tester(object):
             h, w = image.shape[:2]
             bboxes = self.expand_bbox(bboxes)
 
-            # infer
-            if self.args.method == 'ours':
-                order_matrix = infer.infer_order2(
+            # gt order
+            gt_order_matrix = infer.infer_gt_order(modal, amodal_gt)
+
+            # infer order
+            if self.args.order_method == 'area':
+                order_matrix = infer.infer_order_area(
+                    modal, above='smaller' if self.args.data['dataset'] == 'SAS' else 'larger')
+
+            elif self.args.order_method == 'yaxis':
+                order_matrix = infer.infer_order_yaxis(modal)
+
+            elif self.args.order_method == 'convex':
+                order_matrix = infer.infer_order_convex(inmodal)
+
+            elif self.args.order_method == 'ours':
+                order_matrix = infer.infer_order(
                     self.model, image, modal, category, bboxes,
                     use_rgb=self.args.model['use_rgb'], th=order_th, dilate_kernel=0,
                     input_size=256, min_input_size=16, interp='nearest', debug_info=False)
-    
-                amodal_patches_pred = infer.infer_amodal(
-                    self.model, image, modal, category, bboxes, order_matrix,
-                    use_rgb=self.args.model['use_rgb'], th=amodal_th, dilate_kernel=0,
-                    input_size=256, min_input_size=16, interp='linear', debug_info=False)
-    
-                amodal_pred = infer.patch_to_fullimage(
-                    amodal_patches_pred, bboxes, h, w, interp='linear')
+            else:
+                raise Exception('No such order method: {}'.format(self.args.order_method))
+
+            # infer amodal
+            if self.args.amodal_method == 'raw':
+                amodal_pred = modal.copy()
 
             elif self.args.method == 'ours_nog':
-                order_matrix = infer.infer_order2(
-                    self.model, image, modal, category, bboxes,
-                    use_rgb=self.args.model['use_rgb'], th=order_th, dilate_kernel=0,
-                    input_size=256, min_input_size=16, interp='nearest', debug_info=False)
                 amodal_patches_pred = infer.infer_amodal(
                     self.model, image, modal, category, bboxes, order_matrix,
                     use_rgb=self.args.model['use_rgb'], th=amodal_th, dilate_kernel=0,
                     input_size=256, min_input_size=16, interp='linear',
                     order_grounded=False, debug_info=False)
-    
                 amodal_pred = infer.patch_to_fullimage(
                     amodal_patches_pred, bboxes, h, w, interp='linear')
 
-            elif self.args.method == 'sup':
+            elif self.args.method == 'ours':
+                amodal_patches_pred = infer.infer_amodal(
+                    self.model, image, modal, category, bboxes, order_matrix,
+                    use_rgb=self.args.model['use_rgb'], th=amodal_th, dilate_kernel=0,
+                    input_size=256, min_input_size=16, interp='linear',
+                    order_grounded=True, debug_info=False)
+                amodal_pred = infer.patch_to_fullimage(
+                    amodal_patches_pred, bboxes, h, w, interp='linear')
+
+            elif self.args.method == 'sup': # supervised
                 amodal_patches_pred = infer.infer_amodal_sup(
                     self.model, image, modal, category, bboxes,
                     use_rgb=self.args.model['use_rgb'], th=amodal_th, input_size=256,
@@ -137,9 +153,8 @@ class Tester(object):
                     amodal_patches_pred, bboxes, h, w, interp='linear')
 
             elif self.args.method == 'complexity':
-                order_matrix = infer.infer_gt_order(modal, amodal_gt) # use gt order
                 amodal_pred = np.array(infer.infer_amodal_hull(
-                    modal, bboxes, order_matrix, order_grounded=True))
+                    modal, bboxes, gt_order_matrix, order_grounded=True))
 
             elif self.args.method == 'convex':
                 amodal_pred = np.array(infer.infer_amodal_hull(
@@ -174,15 +189,17 @@ class Tester(object):
         with open(self.args.output, 'w') as f:
             json.dump(segm_json_results, f)
 
-    def evaluate(self):
-        annType = 'segm'
-        cocoGt = COCO(self.gt_annot)
-        cocoDt = cocoGt.loadRes(self.args.output)
-        cocoEval = COCOeval(cocoGt, cocoDt, annType)
-        cocoEval.params.imgIds = self.img_ids
-        cocoEval.evaluate()
-        cocoEval.accumulate()
-        cocoEval.summarize()
+    def evaluate(self, metric=['miou', 'map']):
+        if 'map' in metric:
+            cocoGt = COCO(self.gt_annot)
+            cocoDt = cocoGt.loadRes(self.args.output)
+            cocoEval = COCOeval(cocoGt, cocoDt, 'segm')
+            cocoEval.params.imgIds = self.img_ids
+            cocoEval.evaluate()
+            cocoEval.accumulate()
+            cocoEval.summarize()
+        if 'miou' in metric:
+            
 
 if __name__ == "__main__":
     args = parse_args()

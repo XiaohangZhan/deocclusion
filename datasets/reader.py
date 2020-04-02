@@ -133,7 +133,7 @@ class SASDataset(object):
             amodal = None
         return modal, bbox, category, image_fn, amodal
 
-    def get_image_instances(self, idx, with_gt=False, with_anns=False):
+    def get_image_instances(self, idx, with_gt=False, with_anns=False, ignore_stuff=False):
         ann_info = self.annot_info[idx]
         img_info = self.images_info[idx]
         image_fn = img_info['file_name']
@@ -143,6 +143,8 @@ class SASDataset(object):
         ret_category = []
         ret_amodal = []
         for reg in ann_info['regions']:
+            if ignore_stuff and reg['isStuff']:
+                continue
             modal, bbox, category = read_SAS(reg, h, w)
             ret_modal.append(modal)
             ret_bboxes.append(bbox)
@@ -217,7 +219,7 @@ class KINSLVISDataset(object):
         ret_bboxes = []
         ret_category = []
         ret_amodal = []
-        ret_score = []
+        #ret_score = []
         for ann in anns:
             if self.dataset == 'KINS':
                 modal, bbox, category, score = read_KINS(ann)
@@ -228,7 +230,7 @@ class KINSLVISDataset(object):
             ret_modal.append(modal)
             ret_bboxes.append(bbox)
             ret_category.append(category)
-            ret_score.append(score)
+            #ret_score.append(score)
             if with_gt:
                 amodal = maskUtils.decode(
                     maskUtils.frPyObjects(ann['segmentation'], h, w)).squeeze()

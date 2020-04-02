@@ -38,8 +38,9 @@ class SingleStageModel(object):
     def step(self):
         pass
 
-    def load_state(self, path, Iter, resume=False):
-        path = os.path.join(path, "ckpt_iter_{}.pth.tar".format(Iter))
+    def load_state(self, path, Iter=None, resume=False):
+        if Iter is not None:
+            path = os.path.join(path, "ckpt_iter_{}.pth.tar".format(Iter))
 
         if resume:
             utils.load_state(path, self.model, self.optim)

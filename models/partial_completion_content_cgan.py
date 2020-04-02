@@ -155,6 +155,9 @@ class PartialCompletionContentCGAN(nn.Module):
 
         return loss_dict
 
+    def load_model_demo(self, path):
+        utils.load_state(path, self.model)
+
     def load_state(self, root, Iter, resume=False):
         path = os.path.join(root, "ckpt_iter_{}.pth.tar".format(Iter))
         netD_path = os.path.join(root, "D_iter_{}.pth.tar".format(Iter))
@@ -164,8 +167,6 @@ class PartialCompletionContentCGAN(nn.Module):
             utils.load_state(netD_path, self.netD, self.optimD)
         else:
             utils.load_state(path, self.model)
-            if self.demo:
-                return
             utils.load_state(netD_path, self.netD)
 
     def save_state(self, root, Iter):

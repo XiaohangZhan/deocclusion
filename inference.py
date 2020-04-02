@@ -190,7 +190,7 @@ def infer_order_sup(model, image, inmodal, bboxes, input_size=256, use_rgb=True)
 
     return order_matrix
 
-def infer_order2(model, image, inmodal, category, bboxes, use_rgb=True, th=0.5, dilate_kernel=0, input_size=None, min_input_size=32, interp='nearest', debug_info=False):
+def infer_order(model, image, inmodal, category, bboxes, use_rgb=True, th=0.5, dilate_kernel=0, input_size=None, min_input_size=32, interp='nearest', debug_info=False):
     '''
     image: HW3, inmodal: NHW, category: N, bboxes: N4
     '''

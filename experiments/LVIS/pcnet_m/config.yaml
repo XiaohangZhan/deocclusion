@@ -1,8 +1,8 @@
 model:
     algo: PartialCompletion
-    total_iter: 32000
-    lr_steps: []
-    lr_mults: []
+    total_iter: 168000
+    lr_steps: [96000, 144000]
+    lr_mults: [0.1, 0.1]
     lr: 0.001
     weight_decay: 0.0001
     optim: SGD
@@ -14,9 +14,6 @@ model:
         in_channels: 2
         n_classes: 2
     inmask_weight: 5.
-    order_method: "ours"
-    amodal_method: 'ours'
-    above: 'larger'
     inference:
         dilate_kernel_order: 0
         dilate_kernel_amodal: 0
@@ -26,18 +23,16 @@ model:
         amodal_interp: 'linear'
         order_grounded: True
 data:
-    dataset: "KINS"
+    dataset: "LVIS"
     memcached_client: "/mnt/lustre/share/memcached_client"
     trainval_dataset: 'PartialCompDataset'
-    eval_dataset: 'PartialCompEvalDataset'
+    eval_dataset: null
     extract_dataset: null
-    train_image_root: "data/KINS/2D-Det/training/image_2"
-    train_annot_file: "data/KINS/instances_train.json"
-    val_image_root: "data/KINS/2D-Det/testing/image_2"
-    #val_annot_file: "data/KINS/instances_val.json"
-    val_annot_file: "data/KINS/annot_predmodal/instances_val_th0.2.json"
+    train_image_root: "data/LVIS/train2017"
+    train_annot_file: "data/LVIS/lvis_v0.5_train.json"
+    val_image_root: "data/LVIS/val2017"
+    val_annot_file: "data/LVIS/lvis_v0.5_val.json"
 
-    has_gt_ordering: False
     input_size: 256
     enlarge_box: 3.
     eraser_front_prob: 0.8
@@ -54,15 +49,15 @@ data:
     load_rgb: False
     batch_size: 32
     batch_size_val: 32
-    eval_num: -1
+    eval_num: 1000
     workers: 1
 
 trainer:
-    eval: True
-    initial_eval: True
-    eval_freq: 2000
+    eval: False # no gt
+    initial_eval: False
+    eval_freq: -1
     initial_val: True
-    val_freq: 2000
+    val_freq: 5000
     print_freq: 100
     save_freq: 5000
     val_iter: 10

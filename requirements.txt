@@ -4,3 +4,7 @@ imutils
 cvbase
 torchvision
 tensorboardX
+networkx
+cvbase
+scikit-image
+pillow=6.1

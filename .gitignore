@@ -118,4 +118,5 @@ amodal_res*
 scripts/outputs
 scripts/test
 output
-lazy_push
+lazy_push.sh
+released

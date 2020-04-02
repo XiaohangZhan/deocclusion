@@ -318,69 +318,6 @@ class Trainer(object):
     def extract(self):
         raise NotImplemented
 
-    def evaluate_old(self, phase): # padded samples are evalauted twice
-        btime_rec = utils.AverageMeter()
-        intersection_rec = utils.AverageMeter()
-        union_rec = utils.AverageMeter()
-        target_rec = utils.AverageMeter()
-
-        self.model.switch_to('eval')
-
-        end = time.time()
-        if self.args.evaluate_save:
-            output = []
-        for i, (mask, gt) in enumerate(self.eval_loader):
-            mask = mask.cuda()
-            gt = gt.cuda().byte()
-            if self.args.trainer['eval_raw']:
-                results = mask.byte()
-            else:
-                self.model.set_input(mask=mask, target=gt)
-                results = self.model.inference_batch_parallel() # N1HW, int 0/1
-            if self.args.evaluate_save:
-                output.append(torch.squeeze(results.detach(), dim=1).cpu().numpy())
-            intersection = (results & gt).float().sum().item()
-            union = (results | gt).float().sum().item()
-            target = gt.float().sum().item()
-
-            intersection_rec.update(intersection)
-            union_rec.update(union)
-            target_rec.update(target)
-
-            btime_rec.update(time.time() - end)
-            end = time.time()
-
-            if self.rank == 0:
-                self.logger.info(
-                    'Eval Iter: [{0}]\t'.format(self.curr_step) +
-                    'Time {btime.val:.3f} ({btime.avg:.3f})\t'.format(btime=btime_rec))
-
-        reduced_intersection = utils.reduce_tensors(
-            torch.FloatTensor([intersection_rec.sum / self.world_size]).cuda()).item()
-        reduced_union = utils.reduce_tensors(
-            torch.FloatTensor([union_rec.sum / self.world_size]).cuda()).item()
-        reduced_target = utils.reduce_tensors(
-            torch.FloatTensor([target_rec.sum / self.world_size]).cuda()).item()
-
-        iou = reduced_intersection / (reduced_union + 1e-10)
-        acc = reduced_intersection / (reduced_target + 1e-10)
-
-        if self.rank == 0:
-            self.logger.info('mIoU: {:.5g}\tAcc: {:.5g}'.format(iou, acc))
-            if self.tb_logger is not None and phase == 'on_eval':
-                self.tb_logger.add_scalar('val_mIoU', iou, self.curr_step)
-                self.tb_logger.add_scalar('val_Acc', acc, self.curr_step)
-
-        if self.args.evaluate_save:
-            output = np.concatenate(output, axis=0)
-            all_output = utils.gather_tensors_batch(output, 100)
-            if self.rank == 0:
-                all_output = np.concatenate(all_output, axis=0)
-                np.save('{}/images/results_iter_{}.npy'.format(
-                    self.args.exp_path, self.curr_step), all_output)
-
-        self.model.switch_to('train')
-
     def evaluate(self, phase): # padded samples are evalauted twice
         btime_rec = utils.AverageMeter()
         allpair_true_rec = utils.AverageMeter()

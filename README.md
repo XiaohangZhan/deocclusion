@@ -1,4 +1,8 @@
 
+## Requirements
+
+* pytorch>=0.4.1
+
 ## Data prepration
 
 ### COCOA dataset proposed in [Semantic Amodal Segmentation](http://openaccess.thecvf.com/content_cvpr_2017/papers/Zhu_Semantic_Amodal_Segmentation_CVPR_2017_paper.pdf).
@@ -50,4 +54,9 @@
     ln -s /path/to/KINS
     ```
 
-## 
+### [LVIS](https://www.lvisdataset.org/) dataset
+
+1. Download training and validation sets from [here](https://www.lvisdataset.org/dataset)
+## Run demos
+
+Download released models [here](https://drive.google.com/drive/folders/1O89ItVWucCoL_VxIbLM1XLxr9JFfyj_Y?usp=sharing) and put the folder `released` under `deocclusion`.
