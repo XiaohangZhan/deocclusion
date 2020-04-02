@@ -115,6 +115,7 @@ images*
 pretrains
 *.json
 amodal_res*
+hide
 scripts/outputs
 scripts/test
 output
