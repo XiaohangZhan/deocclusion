@@ -88,6 +88,12 @@ Watch the demo video in [YouTube](https://www.youtube.com/watch?v=xIHCyyaB5gU) o
     sh experiments/COCOA/pcnet_m/train.sh
     ```
 
+2. Monitoring status and visual results using tensorboard.
+
+    ```
+    sh tensorboard.sh $PORT
+    ```
+
 ### train PCNet-C
 
 1. Download the pre-trained image inpainting model using partial convolution [here](https://github.com/naoto0804/pytorch-inpainting-with-partial-conv/blob/master/README.md) to `pretrains/partialconv.pth`
