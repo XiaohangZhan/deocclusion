@@ -114,7 +114,7 @@ images*
 
 *.swp
 pretrains
-*.json
+#*.json
 amodal_res*
 hide
 demos/outputs
@@ -122,3 +122,4 @@ demos/test
 output
 lazy_push.sh
 released
+*.hide.*

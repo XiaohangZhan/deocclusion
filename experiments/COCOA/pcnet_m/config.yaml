@@ -19,10 +19,10 @@ data:
     memcached: False
     memcached_client: "/mnt/lustre/share/memcached_client"
     trainval_dataset: 'PartialCompDataset'
-    train_image_root: "data/SAS/train2014"
-    train_annot_file: "data/SAS/annotations/COCO_amodal_train2014.json"
-    val_image_root: "data/SAS/val2014"
-    val_annot_file: "data/SAS/annotations/COCO_amodal_val2014.json"
+    train_image_root: "data/COCOA/train2014"
+    train_annot_file: "data/COCOA/annotations/COCO_amodal_train2014.json"
+    val_image_root: "data/COCOA/val2014"
+    val_annot_file: "data/COCOA/annotations/COCO_amodal_val2014.json"
 
     input_size: 256
     enlarge_box: 3.
