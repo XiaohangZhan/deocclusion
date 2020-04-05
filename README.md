@@ -111,3 +111,16 @@ Watch the demo video in [YouTube](https://www.youtube.com/watch?v=xIHCyyaB5gU) o
     ```
 
 4. Monitoring status and visual results using tensorboard.
+
+
+## Bibtex
+
+```
+@inproceedings{zhan2020self,
+ author = {Zhan, Xiaohang and Pan, Xingang and Dai, Bo and Liu, Ziwei and Lin, Dahua and Loy, Chen Change},
+ title = {Self-Supervised Scene De-occlusion},
+ booktitle = {Proceedings of the IEEE conference on computer vision and pattern recognition (CVPR)},
+ month = {June},
+ year = {2020}
+}
+```
