@@ -1,8 +1,8 @@
 
 ## Paper
-Xiaohang Zhan, Xingang Pan, Bo Dai, Ziwei Liu, Dahua Lin, Chen Change Loy, "Self-Supervised Scene-De-occlusion", accepted to CVPR 2020 as oral. [[Project page](https://xiaohangzhan.github.io/projects/deocclusion/)]
+Xiaohang Zhan, Xingang Pan, Bo Dai, Ziwei Liu, Dahua Lin, Chen Change Loy, "Self-Supervised Scene-De-occlusion", accepted to CVPR 2020 as oral. [[Project page](https://xiaohangzhan.github.io/projects/deocclusion/)].
 
-For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.github.io/)
+For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.github.io/).
 
 ## Demos
 
