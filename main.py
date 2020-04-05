@@ -2,6 +2,8 @@ import multiprocessing as mp
 import argparse
 import os
 import yaml
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 from utils import dist_init
 from trainer import Trainer
@@ -21,7 +23,7 @@ def main(args):
     # dist init
     if mp.get_start_method(allow_none=True) != 'spawn':
         mp.set_start_method('spawn', force=True)
-    dist_init(args.launcher, backend='nccl', port=args.port)
+    dist_init(args.launcher, backend='nccl')
 
     # train
     trainer = Trainer(args)
@@ -41,8 +43,6 @@ if __name__ == '__main__':
     parser.add_argument('--evaluate', action='store_true')
     parser.add_argument('--evaluate-save', action='store_true')
     parser.add_argument('--local_rank', type=int, default=0)
-    parser.add_argument('--port', type=int, default=10086,
-                        help="Set slurm port number.")
     args = parser.parse_args()
 
     main(args)

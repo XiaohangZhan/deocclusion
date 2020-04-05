@@ -33,7 +33,7 @@ def read_LVIS(ann, h, w):
     category = ann['category_id']
     return maskUtils.decode(rle), bbox, category
 
-def read_SAS(ann, h, w):
+def read_COCOA(ann, h, w):
     if 'visible_mask' in ann.keys():
         rle = [ann['visible_mask']]
     else:
@@ -51,41 +51,8 @@ def read_SAS(ann, h, w):
         bbox = utils.mask_to_bbox(modal)
     return modal, bbox, 1 # category as constant 1
 
-#def prepare_instance(image, anns, enlarge_box=3., dataset="KINS", with_gt=False):
-#    if dataset != "KINS":
-#        assert with_gt == False
-#
-#    height, width = image.shape[:2]
-#
-#    ret_inmodal = []
-#    ret_category = []
-#    ret_bboxes = []
-#    ret_amodal = []
-#    for i, ann in enumerate(anns):
-#        if dataset == 'KINS':
-#            inmodal, bbox = read_KINS(ann)
-#        elif dataset == "LVIS":
-#            inmodal, bbox = read_LVIS(ann, height, width)
-#        elif dataset == "SAS":
-#            inmodal, bbox = read_SAS(ann, height, width)
-#        category = ann['category_id']
-#        centerx = bbox[0] + bbox[2] / 2.
-#        centery = bbox[1] + bbox[3] / 2.
-#        size = max([np.sqrt(bbox[2] * bbox[3] * enlarge_box), bbox[2] * 1.1, bbox[3] * 1.1])
-#        new_bbox = [int(centerx - size / 2.), int(centery - size / 2.), int(size), int(size)]
-#        if with_gt:
-#            amodal = maskUtils.decode(
-#                maskUtils.frPyObjects(ann['segmentation'], height, width))
-#        #
-#        ret_inmodal.append(inmodal)
-#        ret_category.append(category)
-#        ret_bboxes.append(new_bbox)
-#        if with_gt:
-#            ret_amodal.append(amodal.squeeze())
-#    return image, np.array(ret_inmodal), np.array(ret_category), np.array(ret_bboxes), np.array(ret_amodal)
 
-
-class SASDataset(object):
+class COCOADataset(object):
 
     def __init__(self, annot_fn):
         data = cvb.load(annot_fn)
@@ -125,7 +92,7 @@ class SASDataset(object):
         w, h = img_info['width'], img_info['height']
         # region
         reg = self.annot_info[imgidx]['regions'][regidx]
-        modal, bbox, category = read_SAS(reg, h, w)
+        modal, bbox, category = read_COCOA(reg, h, w)
         if with_gt:
             amodal = maskUtils.decode(maskUtils.merge(
                 maskUtils.frPyObjects([reg['segmentation']], h, w)))
@@ -145,7 +112,7 @@ class SASDataset(object):
         for reg in ann_info['regions']:
             if ignore_stuff and reg['isStuff']:
                 continue
-            modal, bbox, category = read_SAS(reg, h, w)
+            modal, bbox, category = read_COCOA(reg, h, w)
             ret_modal.append(modal)
             ret_bboxes.append(bbox)
             ret_category.append(category)

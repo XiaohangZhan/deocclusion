@@ -1,0 +1,7 @@
+tensorboardX
+numpy
+opencv-python
+torch >= 1.1
+toml
+easydict
+pprint

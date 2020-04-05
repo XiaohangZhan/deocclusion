@@ -4,10 +4,7 @@ import numpy as np
 
 import torch
 from torch.nn import init
-try:
-    import pydensecrf.densecrf as dcrf
-except Exception:
-    print("pydensecrf not installed")
+
 
 def init_weights(net, init_type='normal', init_gain=0.02):
     """Initialize network weights.
@@ -133,6 +130,7 @@ def load_weights(path, model):
             print('caution: missing keys from checkpoint {}: {}'.format(path, k))
 
 def densecrf(prob, rgb, iter=1): # prob: chw, rgb: hw3
+    import pydensecrf.densecrf as dcrf
     c, h, w = prob.shape
     d = dcrf.DenseCRF2D(w, h, c)
     unary = -np.log(prob.reshape((c, -1)))

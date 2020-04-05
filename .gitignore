@@ -110,14 +110,15 @@ events*
 images*
 *.npy
 *.tar
+*.pth
 
 *.swp
 pretrains
 *.json
 amodal_res*
 hide
-scripts/outputs
-scripts/test
+demos/outputs
+demos/test
 output
 lazy_push.sh
 released

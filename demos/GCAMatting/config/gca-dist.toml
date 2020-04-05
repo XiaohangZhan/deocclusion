@@ -1,0 +1,54 @@
+# Refer to utils/config.py for definition and options.
+
+version = "gca-dist"
+dist = true
+
+[model]
+batch_size = 10
+imagenet_pretrain = true
+imagenet_pretrain_path = "pretrain/model_best_resnet34_En_nomixup.pth"
+    [model.arch]
+    encoder = "resnet_gca_encoder_29"
+    decoder = "res_gca_decoder_22"
+
+[train]
+total_step = 200000
+warmup_step = 5000
+val_step = 2000
+clip_grad = true
+G_lr = 4e-4
+# Uncomment to resume training
+#resume_checkpoint = "latest_model"
+#reset_lr = false
+
+
+[data]
+train_fg = "/home/liyaoyi/dataset/Adobe/train/fg"
+train_alpha = "/home/liyaoyi/dataset/Adobe/train/alpha"
+train_bg = "/home/liyaoyi/dataset/coco_bg"
+test_merged = "/home/liyaoyi/dataset/Adobe/Combined_Dataset/Test_set/merged"
+test_alpha = "/home/liyaoyi/dataset/Adobe/Combined_Dataset/Test_set/alpha_copy"
+test_trimap = "/home/liyaoyi/dataset/Adobe/Combined_Dataset/Test_set/trimaps"
+workers = 4
+augmentation = true
+
+[log]
+tensorboard_path = "./logs/tensorboard"
+tensorboard_step = 100
+tensorboard_image_step = 2000
+logging_path = "./logs/stdout"
+logging_step =  10
+logging_level = "INFO"
+checkpoint_path = "./checkpoints"
+checkpoint_step = 2000
+
+
+[test]
+merged = "/home/liyaoyi/dataset/Adobe/Combined_Dataset/Test_set/merged"
+alpha = "/home/liyaoyi/dataset/Adobe/Combined_Dataset/Test_set/alpha_copy"
+trimap = "/home/liyaoyi/dataset/Adobe/Combined_Dataset/Test_set/trimaps"
+scale = "origin"
+checkpoint = "gca-dist"
+fast_eval = true
+# Uncomment to save predicted alpha
+alpha_path = "prediction"

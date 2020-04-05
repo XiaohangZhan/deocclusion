@@ -1,5 +1,5 @@
 model:
-    algo: PartialCompletion
+    algo: PartialCompletionMask
     total_iter: 32000
     lr_steps: []
     lr_mults: []
@@ -14,33 +14,19 @@ model:
         in_channels: 2
         n_classes: 2
     inmask_weight: 5.
-    order_method: "ours"
-    amodal_method: 'ours'
-    above: 'larger'
-    inference:
-        dilate_kernel_order: 0
-        dilate_kernel_amodal: 0
-        positive_th_order: 0.1
-        positive_th_amodal: 0.2
-        order_interp: 'nearest'
-        amodal_interp: 'linear'
-        order_grounded: True
 data:
     dataset: "KINS"
+    memcached: False
     memcached_client: "/mnt/lustre/share/memcached_client"
     trainval_dataset: 'PartialCompDataset'
-    eval_dataset: 'PartialCompEvalDataset'
-    extract_dataset: null
     train_image_root: "data/KINS/2D-Det/training/image_2"
     train_annot_file: "data/KINS/instances_train.json"
     val_image_root: "data/KINS/2D-Det/testing/image_2"
-    #val_annot_file: "data/KINS/instances_val.json"
-    val_annot_file: "data/KINS/annot_predmodal/instances_val_th0.2.json"
+    val_annot_file: "data/KINS/instances_val.json"
 
-    has_gt_ordering: False
     input_size: 256
     enlarge_box: 3.
-    eraser_front_prob: 0.8
+    eraser_front_prob: 0.8 # case 1 probability
     eraser_setter:
         min_overlap: 0.4
         max_overlap: 1.0
@@ -50,23 +36,18 @@ data:
         flip: True
         shift: [-0.2, 0.2]
         scale: [0.8, 1.2]
-    dilate: 0
     load_rgb: False
     batch_size: 32
     batch_size_val: 32
-    eval_num: -1
-    workers: 1
+    workers: 2
 
 trainer:
-    eval: True
-    initial_eval: True
-    eval_freq: 2000
     initial_val: True
     val_freq: 2000
-    print_freq: 100
-    save_freq: 5000
     val_iter: 10
     val_disp_start_iter: 0
     val_disp_end_iter: 1
+    print_freq: 100
+    save_freq: 2000
     loss_record: ['loss']
     tensorboard: True

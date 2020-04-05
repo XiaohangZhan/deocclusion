@@ -36,7 +36,7 @@ class Trainer(object):
                 os.makedirs('{}/checkpoints'.format(args.exp_path))
 
             # logger
-            if args.trainer['tensorboard'] and not (args.extract or args.evaluate):
+            if args.trainer['tensorboard']:
                 try:
                     from tensorboardX import SummaryWriter
                 except:
@@ -51,14 +51,6 @@ class Trainer(object):
                 self.logger = utils.create_logger(
                     'global_logger',
                     '{}/logs/log_offline_val.txt'.format(args.exp_path))
-            elif args.extract:
-                self.logger = utils.create_logger(
-                    'global_logger',
-                    '{}/logs/log_extract.txt'.format(args.exp_path))
-            elif args.evaluate:
-                self.logger = utils.create_logger(
-                    'global_logger',
-                    '{}/logs/log_evaluate.txt'.format(args.exp_path))
             else:
                 self.logger = utils.create_logger(
                     'global_logger',
@@ -83,12 +75,8 @@ class Trainer(object):
 
         # lr scheduler & datasets
         trainval_class = datasets.__dict__[args.data['trainval_dataset']]
-        eval_class = (None if args.data['eval_dataset']
-                      is None else datasets.__dict__[args.data['eval_dataset']])
-        extract_class = (None if args.data['extract_dataset']
-                         is None else datasets.__dict__[args.data['extract_dataset']])
 
-        if not (args.validate or args.extract or args.evaluate):  # train
+        if not args.validate:  # train
             self.lr_scheduler = utils.StepLRScheduler(
                 self.model.optim,
                 args.model['lr_steps'],
@@ -111,66 +99,27 @@ class Trainer(object):
                                            pin_memory=False,
                                            sampler=train_sampler)
 
-        if not (args.extract or args.evaluate):  # train or offline validation
-            val_dataset = trainval_class(args.data, 'val')
-            val_sampler = utils.DistributedSequentialSampler(val_dataset)
-            self.val_loader = DataLoader(
-                val_dataset,
-                batch_size=args.data['batch_size_val'],
-                shuffle=False,
-                num_workers=args.data['workers'],
-                pin_memory=False,
-                sampler=val_sampler)
-
-        if not (args.validate or args.extract) and eval_class is not None: # train or offline evaluation
-            eval_dataset = eval_class(args.data, 'val')
-            eval_sampler = utils.DistributedSequentialSampler(
-                eval_dataset)
-            self.eval_loader = DataLoader(eval_dataset,
-                                          batch_size=1,
-                                          shuffle=False,
-                                          num_workers=1,
-                                          pin_memory=False,
-                                          sampler=eval_sampler)
-
-        if args.extract:  # extract
-            assert extract_class is not None, 'Please specify extract_dataset'
-            extract_dataset = extract_class(args.data, 'val')
-            extract_sampler = utils.DistributedSequentialSampler(
-                extract_dataset)
-            self.extract_loader = DataLoader(extract_dataset,
-                                             batch_size=1,
-                                             shuffle=False,
-                                             num_workers=1,
-                                             pin_memory=False,
-                                             sampler=extract_sampler)
+        val_dataset = trainval_class(args.data, 'val')
+        val_sampler = utils.DistributedSequentialSampler(val_dataset)
+        self.val_loader = DataLoader(
+            val_dataset,
+            batch_size=args.data['batch_size_val'],
+            shuffle=False,
+            num_workers=args.data['workers'],
+            pin_memory=False,
+            sampler=val_sampler)
 
         self.args = args
 
     def run(self):
-
-        assert self.args.validate + self.args.extract + self.args.evaluate < 2
 
         # offline validate
         if self.args.validate:
             self.validate('off_val')
             return
 
-        # extract
-        if self.args.extract:
-            self.extract()
-            return
-
-        # evaluate
-        if self.args.evaluate:
-            self.evaluate('off_eval')
-            return
-
         if self.args.trainer['initial_val']:
             self.validate('on_val')
-
-        if self.args.trainer['eval'] and self.args.trainer['initial_eval']:
-            self.evaluate('on_eval')
 
         # train
         self.train()
@@ -239,11 +188,6 @@ class Trainer(object):
             if (self.curr_step % self.args.trainer['val_freq'] == 0 or
                 self.curr_step == self.args.model['total_iter']):
                 self.validate('on_val')
-
-            if (self.curr_step % self.args.trainer['eval_freq'] == 0 or
-                self.curr_step == self.args.model['total_iter']) and self.args.trainer['eval']:
-                self.evaluate('on_eval')
-
             
 
     def validate(self, phase):
@@ -312,86 +256,5 @@ class Trainer(object):
                     batch_time=btime_rec) +
                 'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'.format(
                     data_time=dtime_rec) + loss_str)
-
-        self.model.switch_to('train')
-
-    def extract(self):
-        raise NotImplemented
-
-    def evaluate(self, phase): # padded samples are evalauted twice
-        btime_rec = utils.AverageMeter()
-        allpair_true_rec = utils.AverageMeter()
-        allpair_rec = utils.AverageMeter()
-        occpair_true_rec = utils.AverageMeter()
-        occpair_rec = utils.AverageMeter()
-        intersection_rec = utils.AverageMeter()
-        union_rec = utils.AverageMeter()
-        target_rec = utils.AverageMeter()
-
-        self.model.switch_to('eval')
-
-        end = time.time()
-        for i, (image, modal, category, bboxes, amodal, gt_order_matrix) in enumerate(self.eval_loader):
-            image = image.squeeze(0).numpy()
-            modal = modal.squeeze(0).numpy()
-            category = category.squeeze(0).numpy()
-            bboxes = bboxes.squeeze(0).numpy()
-            amodal = amodal.squeeze(0).numpy()
-            gt_order_matrix = gt_order_matrix.squeeze(0).numpy()
-
-            allpair_true, allpair, occpair_true, occpair, intersection, union, target = \
-                self.model.evaluate(image, modal, category, bboxes, amodal,
-                gt_order_matrix, self.args.data['input_size'])
-
-            intersection_rec.update(intersection)
-            union_rec.update(union)
-            target_rec.update(target)
-    
-            allpair_true_rec.update(allpair_true)
-            allpair_rec.update(allpair)
-            occpair_true_rec.update(occpair_true)
-            occpair_rec.update(occpair)
-
-            btime_rec.update(time.time() - end)
-            end = time.time()
-
-            if self.rank == 0 and i % self.args.trainer['print_freq'] == 0:
-                self.logger.info(
-                    'Eval Iter: [{0}] ({1}/{2})\t'.format(self.curr_step, i, len(self.eval_loader)) +
-                    'Time {btime.val:.3f} ({btime.avg:.3f})\t'.format(btime=btime_rec))
-
-        reduced_allpair_true = utils.reduce_tensors(
-            torch.FloatTensor([allpair_true_rec.sum / self.world_size]).cuda()).item()
-        reduced_allpair = utils.reduce_tensors(
-            torch.FloatTensor([allpair_rec.sum / self.world_size]).cuda()).item()
-        reduced_occpair_true = utils.reduce_tensors(
-            torch.FloatTensor([occpair_true_rec.sum / self.world_size]).cuda()).item()
-        reduced_occpair = utils.reduce_tensors(
-            torch.FloatTensor([occpair_rec.sum / self.world_size]).cuda()).item()
-
-        reduced_intersection = utils.reduce_tensors(
-            torch.FloatTensor([intersection_rec.sum / self.world_size]).cuda()).item()
-        reduced_union = utils.reduce_tensors(
-            torch.FloatTensor([union_rec.sum / self.world_size]).cuda()).item()
-        reduced_target = utils.reduce_tensors(
-            torch.FloatTensor([target_rec.sum / self.world_size]).cuda()).item()
-
-        acc_allpair = reduced_allpair_true / reduced_allpair
-        acc_occpair = reduced_occpair_true / reduced_occpair
-
-        iou = reduced_intersection / (reduced_union + 1e-10)
-        acc = reduced_intersection / (reduced_target + 1e-10)
-
-        if self.rank == 0:
-            self.logger.info(
-                'Order_acc_all: {:.5g}\tOrder_acc_occ: {:.5g}\t'
-                'Amodal_mIoU: {:.5g}\tAmodal_acc: {:.5g}'.format(
-                    acc_allpair, acc_occpair, iou, acc))
-
-            if self.tb_logger is not None and phase == 'on_eval':
-                self.tb_logger.add_scalar('val_acc_all', acc_allpair, self.curr_step)
-                self.tb_logger.add_scalar('val_acc_occ', acc_occpair, self.curr_step)
-                self.tb_logger.add_scalar('val_amodal_miou', iou, self.curr_step)
-                self.tb_logger.add_scalar('val_amodal_acc', acc, self.curr_step)
 
         self.model.switch_to('train')

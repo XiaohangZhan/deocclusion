@@ -21,11 +21,9 @@ model:
 
 data:
     dataset: "KINS"
-    memcached: True
+    memcached: False
     memcached_client: "/mnt/lustre/share/memcached_client"
     trainval_dataset: 'PartialCompContentDataset'
-    eval_dataset: null
-    extract_dataset: null
     train_image_root: "data/KINS/2D-Det/training/image_2"
     train_annot_file: "data/KINS/instances_train.json"
     val_image_root: "data/KINS/2D-Det/testing/image_2"
@@ -44,23 +42,19 @@ data:
         flip: True
         shift: [-0.2, 0.2]
         scale: [0.8, 1.2]
-    dilate: 0
+    #dilate: 0
     load_rgb: True
     batch_size: 16
     batch_size_val: 32
-    eval_num: -1
     workers: 2
 
 trainer:
-    eval: False
-    initial_eval: False
-    eval_freq: 2000
     initial_val: True
-    val_freq: 500
-    print_freq: 100
-    save_freq: 10000
+    val_freq: 2000
     val_iter: 10
     val_disp_start_iter: 0
     val_disp_end_iter: 1
+    print_freq: 100
+    save_freq: 10000
     loss_record: ['hole', 'valid', 'prc', 'style', 'tv', 'dis', 'adv']
     tensorboard: True

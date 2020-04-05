@@ -18,15 +18,13 @@ from tqdm import tqdm
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', required=True, type=str)
-    parser.add_argument('--load-model', required=True, type=int)
+    parser.add_argument('--load-model', required=True, type=str)
     parser.add_argument('--order-method', required=True, type=str)
     parser.add_argument('--amodal-method', required=True, type=str)
-    parser.add_argument('--modal-res', required=True, type=str)
+    parser.add_argument('--annotation', required=True, type=str)
     parser.add_argument('--image-root', required=True, type=str)
-    parser.add_argument('--gt-annot', required=True, type=str)
     parser.add_argument('--test-num', default=-1, type=int)
     parser.add_argument('--output', default=None, type=str)
-    parser.add_argument('--force', action='store_true')
     args = parser.parse_args()
     return args
 
@@ -52,15 +50,15 @@ class Tester(object):
         config = self.args.data
         dataset = config['dataset']
         self.data_root = self.args.image_root
-        if dataset == 'SAS':
-            self.data_reader = reader.SASDataset(self.args.modal_res)
+        if dataset == 'COCOA':
+            self.data_reader = reader.COCOADataset(self.args.annotation)
         else:
             self.data_reader = reader.KINSLVISDataset(
-                dataset, self.args.modal_res)
-        self.img_ids = self.data_reader.img_ids
+                dataset, self.args.annotation)
+        self.data_length = self.data_reader.get_image_length()
+        self.dataset = dataset
         if self.args.test_num != -1:
-            self.img_ids = self.img_ids[:self.args.test_num]
-        self.gt_annot = self.args.gt_annot
+            self.data_length = self.args.test_num
 
     def prepare_model(self):
         self.model = models.__dict__[self.args.model['algo']](self.args.model, dist_model=False)
@@ -79,24 +77,30 @@ class Tester(object):
         return np.array(new_bboxes)
 
     def run(self):
-        if not os.path.isfile(self.args.output) or args.force:
-            self.prepare_model()
-            self.infer()
-        self.evaluate()
+        self.prepare_model()
+        self.infer()
 
     def infer(self):
         order_th = self.args.model['inference']['positive_th_order']
         amodal_th = self.args.model['inference']['positive_th_amodal']
 
         segm_json_results = []
-        count = 0
+        self.count = 0
         
-        for i,imgid in tqdm(enumerate(self.img_ids), total=len(self.img_ids)):
+        allpair_true_rec = utils.AverageMeter()
+        allpair_rec = utils.AverageMeter()
+        occpair_true_rec = utils.AverageMeter()
+        occpair_rec = utils.AverageMeter()
+        intersection_rec = utils.AverageMeter()
+        union_rec = utils.AverageMeter()
+        target_rec = utils.AverageMeter()
+
+        for i in tqdm(range(self.data_length), total=self.data_length):
             modal, category, bboxes, amodal_gt, image_fn = self.data_reader.get_image_instances(
                 i, with_gt=True)
 
             # data
-            image = np.array(Image.open(os.path.join(self.data_root, image_fn)))
+            image = np.array(Image.open(os.path.join(self.data_root, image_fn)).convert('RGB'))
             h, w = image.shape[:2]
             bboxes = self.expand_bbox(bboxes)
 
@@ -112,7 +116,7 @@ class Tester(object):
                 order_matrix = infer.infer_order_yaxis(modal)
 
             elif self.args.order_method == 'convex':
-                order_matrix = infer.infer_order_convex(inmodal)
+                order_matrix = infer.infer_order_convex(modal)
 
             elif self.args.order_method == 'ours':
                 order_matrix = infer.infer_order(
@@ -126,7 +130,7 @@ class Tester(object):
             if self.args.amodal_method == 'raw':
                 amodal_pred = modal.copy()
 
-            elif self.args.method == 'ours_nog':
+            elif self.args.amodal_method == 'ours_nog':
                 amodal_patches_pred = infer.infer_amodal(
                     self.model, image, modal, category, bboxes, order_matrix,
                     use_rgb=self.args.model['use_rgb'], th=amodal_th, dilate_kernel=0,
@@ -135,7 +139,7 @@ class Tester(object):
                 amodal_pred = infer.patch_to_fullimage(
                     amodal_patches_pred, bboxes, h, w, interp='linear')
 
-            elif self.args.method == 'ours':
+            elif self.args.amodal_method == 'ours':
                 amodal_patches_pred = infer.infer_amodal(
                     self.model, image, modal, category, bboxes, order_matrix,
                     use_rgb=self.args.model['use_rgb'], th=amodal_th, dilate_kernel=0,
@@ -144,7 +148,7 @@ class Tester(object):
                 amodal_pred = infer.patch_to_fullimage(
                     amodal_patches_pred, bboxes, h, w, interp='linear')
 
-            elif self.args.method == 'sup': # supervised
+            elif self.args.amodal_method == 'sup': # supervised
                 amodal_patches_pred = infer.infer_amodal_sup(
                     self.model, image, modal, category, bboxes,
                     use_rgb=self.args.model['use_rgb'], th=amodal_th, input_size=256,
@@ -152,15 +156,11 @@ class Tester(object):
                 amodal_pred = infer.patch_to_fullimage(
                     amodal_patches_pred, bboxes, h, w, interp='linear')
 
-            elif self.args.method == 'complexity':
-                amodal_pred = np.array(infer.infer_amodal_hull(
-                    modal, bboxes, gt_order_matrix, order_grounded=True))
-
-            elif self.args.method == 'convex':
+            elif self.args.amodal_method == 'convex':
                 amodal_pred = np.array(infer.infer_amodal_hull(
                     modal, bboxes, None, order_grounded=False))
 
-            elif self.args.method == 'convexr':
+            elif self.args.amodal_method == 'convexr':
                 order_matrix = infer.infer_order_hull(modal)
                 amodal_pred = np.array(infer.infer_amodal_hull(
                     modal, bboxes, order_matrix, order_grounded=True))
@@ -168,38 +168,60 @@ class Tester(object):
             else:
                 raise Exception("No such method: {}".format(self.args.method))
 
-            # encode
-            for i in range(amodal_pred.shape[0]):
-                data = dict()
-                rle = maskUtils.encode(
-                    np.array(amodal_pred[i, :, :, np.newaxis], order='F'))[0]
-                data['image_id'] = imgid
-                data['category_id'] = category[i].item()
-                if isinstance(rle['counts'], bytes):
-                    rle['counts'] = rle['counts'].decode()
-                data['segmentation'] = rle
-                data['bbox'] = utils.mask_to_bbox(amodal_pred[i, :, :])
-                data['area'] = float(data['bbox'][2] * data['bbox'][3])
-                data['iscrowd'] = 0
-                data['score'] = 1.
-                data['id'] = count
-                segm_json_results.append(data)
-                count += 1
+            # eval
+            allpair_true, allpair, occpair_true, occpair, _ = infer.eval_order(
+                order_matrix, gt_order_matrix)
+            allpair_true_rec.update(allpair_true)
+            allpair_rec.update(allpair)
+            occpair_true_rec.update(occpair_true)
+            occpair_rec.update(occpair)
 
+            intersection = ((amodal_pred == 1) & (amodal_gt == 1)).sum()
+            union = ((amodal_pred == 1) | (amodal_gt == 1)).sum()
+            target = (amodal_gt == 1).sum()
+            intersection_rec.update(intersection)
+            union_rec.update(union)
+            target_rec.update(target)
+
+            # make output
+            if self.dataset == 'KINS':
+                segm_json_results.extend(self.make_KINS_output(i, amodal_pred, category))
+
+        # print results
+        acc_allpair = allpair_true_rec.sum / float(allpair_rec.sum) # accuracy for all pairs
+        acc_occpair = occpair_true_rec.sum / float(occpair_rec.sum) # accuray for occluded pairs
+        miou = intersection_rec.sum / (union_rec.sum + 1e-10) # mIoU
+        pacc = intersection_rec.sum / (target_rec.sum + 1e-10) # pixel accuracy
+        print("Evaluation results. acc_allpair: {:.5g}, acc_occpair: {:.5g} \
+              mIoU: {:.5g}, pAcc: {:.5g}".format(acc_allpair, acc_occpair, miou, pacc))
+
+        # save
+        if not os.path.isdir(os.path.dirname(self.args.output)):
+            os.makedirs(os.path.dirname(self.args.output))
         with open(self.args.output, 'w') as f:
             json.dump(segm_json_results, f)
 
-    def evaluate(self, metric=['miou', 'map']):
-        if 'map' in metric:
-            cocoGt = COCO(self.gt_annot)
-            cocoDt = cocoGt.loadRes(self.args.output)
-            cocoEval = COCOeval(cocoGt, cocoDt, 'segm')
-            cocoEval.params.imgIds = self.img_ids
-            cocoEval.evaluate()
-            cocoEval.accumulate()
-            cocoEval.summarize()
-        if 'miou' in metric:
-            
+    def make_KINS_output(self, idx, amodal_pred, category):
+        results = []
+        for i in range(amodal_pred.shape[0]):
+            data = dict()
+            rle = maskUtils.encode(
+                np.array(amodal_pred[i, :, :, np.newaxis], order='F'))[0]
+            if hasattr(self.data_reader, 'img_ids'):
+                data['image_id'] = self.data_reader.img_ids[idx]
+            data['category_id'] = category[i].item()
+            if isinstance(rle['counts'], bytes):
+                rle['counts'] = rle['counts'].decode()
+            data['segmentation'] = rle
+            data['bbox'] = utils.mask_to_bbox(amodal_pred[i, :, :])
+            data['area'] = float(data['bbox'][2] * data['bbox'][3])
+            data['iscrowd'] = 0
+            data['score'] = 1.
+            data['id'] = self.count
+            results.append(data)
+            self.count += 1
+        return results
+
 
 if __name__ == "__main__":
     args = parse_args()

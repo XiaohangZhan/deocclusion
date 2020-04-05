@@ -1,7 +1,20 @@
 
+## Paper
+Xiaohang Zhan, Xingang Pan, Bo Dai, Ziwei Liu, Dahua Lin, Chen Change Loy, "Self-Supervised Scene-De-occlusion", accepted to CVPR 2020 as oral. [[Project page](https://xiaohangzhan.github.io/projects/deocclusion/)]
+
+For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.github.io/)
+
+## Demos
+
+Watch the demo video in [YouTube](https://www.youtube.com/watch?v=xIHCyyaB5gU) or [bilibili](https://www.bilibili.com/video/BV1JT4y157Wt). The demo video contains vivid explanations of the idea, and interesting applications.
+
 ## Requirements
 
 * pytorch>=0.4.1
+
+    ```shell
+    pip install -r requirements.txt
+    ```
 
 ## Data prepration
 
@@ -57,6 +70,38 @@
 ### [LVIS](https://www.lvisdataset.org/) dataset
 
 1. Download training and validation sets from [here](https://www.lvisdataset.org/dataset)
+
+
 ## Run demos
 
-Download released models [here](https://drive.google.com/drive/folders/1O89ItVWucCoL_VxIbLM1XLxr9JFfyj_Y?usp=sharing) and put the folder `released` under `deocclusion`.
+1. Download released models [here](https://drive.google.com/drive/folders/1O89ItVWucCoL_VxIbLM1XLxr9JFfyj_Y?usp=sharing) and put the folder `released` under `deocclusion`.
+
+2. Run `demos/demo_cocoa.ipynb` or `demos/demo_kins.ipynb`.
+
+## Train
+
+### train PCNet-M
+
+1. Train (taking COCOA for example).
+
+    ```
+    sh experiments/COCOA/pcnet_m/train.sh
+    ```
+
+### train PCNet-C
+
+1. Download the pre-trained image inpainting model using partial convolution [here](https://github.com/naoto0804/pytorch-inpainting-with-partial-conv/blob/master/README.md) to `pretrains/partialconv.pth`
+
+2. Convert the model to accept 4 channel inputs.
+
+    ```shell
+    python tools/convert_pcnetc_pretrain.py
+    ```
+
+3. Train (taking COCOA for example).
+
+    ```
+    sh experiments/COCOA/pcnet_c/train.sh
+    ```
+
+4. Monitoring status and visual results using tensorboard.
