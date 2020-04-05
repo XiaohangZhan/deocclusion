@@ -110,7 +110,7 @@ class Tester(object):
             # infer order
             if self.args.order_method == 'area':
                 order_matrix = infer.infer_order_area(
-                    modal, above='smaller' if self.args.data['dataset'] == 'SAS' else 'larger')
+                    modal, above='smaller' if self.args.data['dataset'] == 'COCOA' else 'larger')
 
             elif self.args.order_method == 'yaxis':
                 order_matrix = infer.infer_order_yaxis(modal)

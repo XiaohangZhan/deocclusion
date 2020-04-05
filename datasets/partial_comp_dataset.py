@@ -19,8 +19,8 @@ class PartialCompDataset(Dataset):
 
     def __init__(self, config, phase):
         self.dataset = config['dataset']
-        if self.dataset == 'SAS':
-            self.data_reader = reader.SASDataset(config['{}_annot_file'.format(phase)])
+        if self.dataset == 'COCOA':
+            self.data_reader = reader.COCOADataset(config['{}_annot_file'.format(phase)])
         else:
             self.data_reader = reader.KINSLVISDataset(
                 self.dataset, config['{}_annot_file'.format(phase)])
