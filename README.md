@@ -116,7 +116,7 @@ Watch the demo video in [YouTube](https://www.youtube.com/watch?v=xIHCyyaB5gU) o
 
 ## Evaluation
 
-Execute:
+* Execute:
 
     ```shell
     sh tools/test_cocoa.sh
