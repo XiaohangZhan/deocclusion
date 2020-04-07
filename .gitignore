@@ -123,3 +123,4 @@ output
 lazy_push.sh
 released
 *.hide.*
+.DS_Store
