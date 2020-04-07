@@ -114,6 +114,14 @@ Watch the demo video in [YouTube](https://www.youtube.com/watch?v=xIHCyyaB5gU) o
 
 4. Monitoring status and visual results using tensorboard.
 
+## Evaluation
+
+Execute:
+
+    ```shell
+    sh tools/test_cocoa.sh
+    ```
+
 
 ## Bibtex
 
