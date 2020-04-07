@@ -134,3 +134,7 @@ Watch the demo video in [YouTube](https://www.youtube.com/watch?v=xIHCyyaB5gU) o
  year = {2020}
 }
 ```
+
+## Acknowledgement
+
+We used [GCA-Matting](https://github.com/Yaoyi-Li/GCA-Matting) in our demo.
