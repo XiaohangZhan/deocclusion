@@ -137,4 +137,4 @@ Watch the demo video in [YouTube](https://www.youtube.com/watch?v=xIHCyyaB5gU) o
 
 ## Acknowledgement
 
-We used [GCA-Matting](https://github.com/Yaoyi-Li/GCA-Matting) in our demo.
+We used the code and models of [GCA-Matting](https://github.com/Yaoyi-Li/GCA-Matting) in our demo.
