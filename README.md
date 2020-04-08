@@ -1,12 +1,12 @@
 
 ## Paper
-Xiaohang Zhan, Xingang Pan, Bo Dai, Ziwei Liu, Dahua Lin, Chen Change Loy, "[Self-Supervised Scene De-occlusion](https://arxiv.org/abs/2004.02788)", accepted to CVPR 2020 as oral. [[Project page](https://xiaohangzhan.github.io/projects/deocclusion/)].
+Xiaohang Zhan, Xingang Pan, Bo Dai, Ziwei Liu, Dahua Lin, Chen Change Loy, "[Self-Supervised Scene De-occlusion](https://arxiv.org/abs/2004.02788)", accepted to CVPR 2020 as an **Oral Paper**. [[Project page](https://xiaohangzhan.github.io/projects/deocclusion/)].
 
 <img src="demos/teaser.png"/>
 
 For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.github.io/).
 
-## Demos
+## Demo Video
 
 * Watch the demo video in [YouTube](https://www.youtube.com/watch?v=xIHCyyaB5gU) or [bilibili](https://www.bilibili.com/video/BV1JT4y157Wt). The demo video contains vivid explanations of the idea, and interesting applications.
 
@@ -22,7 +22,7 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
     pip install -r requirements.txt
     ```
 
-## Data prepration
+## Data Preparation
 
 ### COCOA dataset proposed in [Semantic Amodal Segmentation](http://openaccess.thecvf.com/content_cvpr_2017/papers/Zhu_Semantic_Amodal_Segmentation_CVPR_2017_paper.pdf).
 
@@ -78,7 +78,7 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
 1. Download training and validation sets from [here](https://www.lvisdataset.org/dataset)
 
 
-## Run demos
+## Run Demos
 
 1. Download released models [here](https://drive.google.com/drive/folders/1O89ItVWucCoL_VxIbLM1XLxr9JFfyj_Y?usp=sharing) and put the folder `released` under `deocclusion`.
 
@@ -118,7 +118,7 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
 
 4. Monitoring status and visual results using tensorboard.
 
-## Evaluation
+## Evaluate
 
 * Execute:
 
@@ -141,4 +141,4 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
 
 ## Acknowledgement
 
-We used [GCA-Matting](https://github.com/Yaoyi-Li/GCA-Matting) in our demo.
+We used the code and models of [GCA-Matting](https://github.com/Yaoyi-Li/GCA-Matting) in our demo.
