@@ -8,7 +8,11 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
 
 ## Demos
 
-Watch the demo video in [YouTube](https://www.youtube.com/watch?v=xIHCyyaB5gU) or [bilibili](https://www.bilibili.com/video/BV1JT4y157Wt). The demo video contains vivid explanations of the idea, and interesting applications.
+* Watch the demo video in [YouTube](https://www.youtube.com/watch?v=xIHCyyaB5gU) or [bilibili](https://www.bilibili.com/video/BV1JT4y157Wt). The demo video contains vivid explanations of the idea, and interesting applications.
+
+* Below is an application of scene de-occlusion: image manipulation.
+
+![](demos/manipulation.gif)
 
 ## Requirements
 
