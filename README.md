@@ -12,7 +12,7 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
 
 * Below is an application of scene de-occlusion: image manipulation.
 
-![](demos/manipulation.gif)
+<img src="demos/manipulation.gif" width=200>
 
 ## Requirements
 
