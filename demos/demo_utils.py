@@ -168,6 +168,8 @@ def gettrimap(mask, k):
     :return: matting trimap. 255 for groundtruth foreground, 127 for uncertain area, 0 for ground truth background
     """
     assert mask.max() == 1 and mask.min() == 0
+    if mask.sum() < 20:
+        k = 1
     kernel = np.ones((2 * k + 1, 2 * k + 1), dtype=np.uint8)
     dilate_mask = cv2.dilate(mask, kernel, iterations=1)
     erode_mask = 1 - cv2.dilate(1 - mask, kernel, iterations=1)
