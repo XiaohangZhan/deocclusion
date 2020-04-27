@@ -38,7 +38,6 @@ class PartialCompContentDataset(Dataset):
         self.memcached = config.get('memcached', False)
         self.initialized = False
         self.memcached_client = config.get('memcached_client', None)
-        self.memcached = self.memcached_client is not None
 
     def __len__(self):
         return self.data_reader.get_instance_length()
