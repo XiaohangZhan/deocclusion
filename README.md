@@ -91,7 +91,7 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
 1. Train (taking COCOA for example).
 
     ```
-    sh experiments/COCOA/pcnet_m/train.sh
+    sh experiments/COCOA/pcnet_m/train.sh # you may have to set --nproc_per_node=#YOUR_GPUS
     ```
 
 2. Monitoring status and visual results using tensorboard.
@@ -113,7 +113,7 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
 3. Train (taking COCOA for example).
 
     ```
-    sh experiments/COCOA/pcnet_c/train.sh
+    sh experiments/COCOA/pcnet_c/train.sh # you may have to set --nproc_per_node=#YOUR_GPUS
     ```
 
 4. Monitoring status and visual results using tensorboard.
