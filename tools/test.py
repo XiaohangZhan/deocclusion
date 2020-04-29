@@ -21,6 +21,8 @@ def parse_args():
     parser.add_argument('--load-model', required=True, type=str)
     parser.add_argument('--order-method', required=True, type=str)
     parser.add_argument('--amodal-method', required=True, type=str)
+    parser.add_argument('--order-th', default=0.1, type=float)
+    parser.add_argument('--amodal-th', default=0.2, type=float)
     parser.add_argument('--annotation', required=True, type=str)
     parser.add_argument('--image-root', required=True, type=str)
     parser.add_argument('--test-num', default=-1, type=int)
@@ -81,8 +83,8 @@ class Tester(object):
         self.infer()
 
     def infer(self):
-        order_th = self.args.model['inference']['positive_th_order']
-        amodal_th = self.args.model['inference']['positive_th_amodal']
+        order_th = self.args.order_th
+        amodal_th = self.args.amodal_th
 
         segm_json_results = []
         self.count = 0
