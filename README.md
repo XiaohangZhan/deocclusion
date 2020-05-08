@@ -22,6 +22,12 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
     pip install -r requirements.txt
     ```
 
+## Run Demos
+
+1. Download released models [here](https://drive.google.com/drive/folders/1O89ItVWucCoL_VxIbLM1XLxr9JFfyj_Y?usp=sharing) and put the folder `released` under `deocclusion`.
+
+2. Run `demos/demo_cocoa.ipynb` or `demos/demo_kins.ipynb`. There are some test examples for `demos/demo_cocoa.ipynb` in the repo, so you don't have to download the COCOA dataset if you just want to try a few samples.
+
 ## Data Preparation
 
 ### COCOA dataset proposed in [Semantic Amodal Segmentation](http://openaccess.thecvf.com/content_cvpr_2017/papers/Zhu_Semantic_Amodal_Segmentation_CVPR_2017_paper.pdf).
@@ -76,13 +82,6 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
 ### [LVIS](https://www.lvisdataset.org/) dataset
 
 1. Download training and validation sets from [here](https://www.lvisdataset.org/dataset)
-
-
-## Run Demos
-
-1. Download released models [here](https://drive.google.com/drive/folders/1O89ItVWucCoL_VxIbLM1XLxr9JFfyj_Y?usp=sharing) and put the folder `released` under `deocclusion`.
-
-2. Run `demos/demo_cocoa.ipynb` or `demos/demo_kins.ipynb`.
 
 ## Train
 
