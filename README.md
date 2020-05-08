@@ -140,4 +140,6 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
 
 ## Acknowledgement
 
-We used the code and models of [GCA-Matting](https://github.com/Yaoyi-Li/GCA-Matting) in our demo.
+1. We used the code and models of [GCA-Matting](https://github.com/Yaoyi-Li/GCA-Matting) in our demo.
+
+2. We modified some code from [pytorch-inpainting-with-partial-conv](https://github.com/naoto0804/pytorch-inpainting-with-partial-conv) to train the PCNet-C.
