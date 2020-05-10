@@ -1,6 +1,6 @@
 import torch
 
-params = torch.load('pretrains/partialconv.pth')
+params = torch.load('pretrains/partialconv.pth')['model']
 
 involved_keys = ['enc_1.conv.input_conv.weight',
                  'enc_1.conv.mask_conv.weight',
