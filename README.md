@@ -16,7 +16,17 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
 
 ## Requirements
 
+* python: 3.7
+
 * pytorch>=0.4.1
+
+* install pycocotools:
+   
+   ```shell
+   pip install "git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI"
+   ```
+
+* others:
 
     ```shell
     pip install -r requirements.txt
