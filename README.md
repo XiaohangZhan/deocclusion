@@ -108,6 +108,9 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
     ```
     sh tensorboard.sh $PORT
     ```
+### Using your own dataset
+
+If using your own dataset to train or test, you need to make sure that it contains accurate modal annotations (masks are required and categories are optional). Inaccurate modal mask annotations, e.g., COCO original annotaions that may have large margin between masks of occluding objects, will result in unsatisfactory results.
 
 ### train PCNet-C
 
