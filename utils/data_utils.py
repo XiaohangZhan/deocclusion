@@ -87,7 +87,7 @@ def place_eraser(inst, eraser, min_overlap, max_overlap):
         else:
             offy = 1 - over_y
     assert offy > -1 and offy < 1
-    bbox = (int(offx * h), int(offy * h), w, h)
+    bbox = (int(offx * w), int(offy * h), w, h)
     shift_eraser = crop_padding(eraser, bbox, pad_value=(0,))
     assert inst.max() <= 1, "inst max: {}".format(inst.max())
     assert shift_eraser.max() <= 1, "eraser max: {}".format(eraser.max())
