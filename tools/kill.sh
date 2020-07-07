@@ -1,2 +1,2 @@
 #!/bin/bash
-pkill -f main.py
+kill $(ps aux | grep "main.py" | grep -v grep | awk '{print $2}')

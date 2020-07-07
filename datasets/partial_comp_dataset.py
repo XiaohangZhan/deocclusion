@@ -21,6 +21,9 @@ class PartialCompDataset(Dataset):
         self.dataset = config['dataset']
         if self.dataset == 'COCOA':
             self.data_reader = reader.COCOADataset(config['{}_annot_file'.format(phase)])
+        elif self.dataset == 'Mapillary':
+            self.data_reader = reader.MapillaryDataset(
+                config['{}_root'.format(phase)], config['{}_annot_file'.format(phase)])
         else:
             self.data_reader = reader.KINSLVISDataset(
                 self.dataset, config['{}_annot_file'.format(phase)])
