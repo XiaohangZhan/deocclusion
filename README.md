@@ -38,6 +38,8 @@ For further information, please contact [Xiaohang Zhan](https://xiaohangzhan.git
 
 2. Run `demos/demo_cocoa.ipynb` or `demos/demo_kins.ipynb`. There are some test examples for `demos/demo_cocoa.ipynb` in the repo, so you don't have to download the COCOA dataset if you just want to try a few samples.
 
+3. If you want to use predicted modal masks by existing instance segmentation models, you need to adjust some parameters in the demo, please refer to the answers in this [issue](https://github.com/XiaohangZhan/deocclusion/issues/14).
+
 ## Data Preparation
 
 ### COCOA dataset proposed in [Semantic Amodal Segmentation](http://openaccess.thecvf.com/content_cvpr_2017/papers/Zhu_Semantic_Amodal_Segmentation_CVPR_2017_paper.pdf).
