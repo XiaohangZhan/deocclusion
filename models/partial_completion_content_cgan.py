@@ -143,15 +143,15 @@ class PartialCompletionContentCGAN(nn.Module):
         loss_dict['adv'] = gen_gan_loss
 
         # update
-        self.optimD.zero_grad()
-        dis_loss.backward()
-        utils.average_gradients(self.netD)
-        self.optimD.step()
-
         self.optim.zero_grad()
         gen_loss.backward()
         utils.average_gradients(self.model)
         self.optim.step()
+        
+        self.optimD.zero_grad()
+        dis_loss.backward()
+        utils.average_gradients(self.netD)
+        self.optimD.step()
 
         return loss_dict
 
