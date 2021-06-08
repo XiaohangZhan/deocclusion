@@ -7,5 +7,5 @@ tensorboardX
 networkx
 cvbase
 scikit-image
-pillow==6.1
+pillow==8.2.0
 tqdm
